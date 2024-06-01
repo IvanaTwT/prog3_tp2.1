@@ -1,4 +1,31 @@
-class Sensor {}
+class Sensor {
+
+    /*"id": "sensor-1",
+  "name": "Sensor 1",
+  "type": "temperature",
+  "value": 24.5,
+  "unit": "°C",
+  "updated_at": "2023-06-01T12:00:00"
+   */
+    constructor(id,name,type,value,unit,updated_at){
+        this.id=id ?? null;
+        this.name=name ?? "";
+        this.type= this.controlType(type) ;
+        this.value=value ?? 0.0;
+        this.unit=unit ?? "";
+        this.updated_at=updated_at;
+    }
+    controlType(type){
+        if(type != "temperature" || type != "humidity"|| type != "pressure"){
+            return "temperature" ;
+        }
+    }
+    // Implementar la propiedad computada `updateValue` mediante un *setter* que permita actualizar el valor del sensor y la fecha de actualización.
+    updateValue(valueSensor, fechaUpdate){
+        this.value=valueSensor;
+        this.fechaUpdate=fechaUpdate;
+    }
+}
 
 class SensorManager {
     constructor() {
@@ -32,8 +59,21 @@ class SensorManager {
             console.error(`Sensor ID ${id} no encontrado`);
         }
     }
-
-    async loadSensors(url) {}
+    
+    async loadSensors(url) {
+        try {
+            const response= await fetch(`${url}`);
+            const sensores= await response.json();
+            this.sensors=sensores;
+            // console.log("?? ",this.sensors)
+            this.render();
+        }catch {
+            console.error("Error de ruta");
+        } finally {
+            console.log("Petición completada");
+        }
+        
+    }
 
     render() {
         const container = document.getElementById("sensor-container");
