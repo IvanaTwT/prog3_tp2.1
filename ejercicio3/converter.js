@@ -6,11 +6,39 @@ class Currency {
 }
 
 class CurrencyConverter {
-    constructor() {}
-
-    getCurrencies(apiUrl) {}
-
-    convertCurrency(amount, fromCurrency, toCurrency) {}
+    constructor(apiUrl) {
+        this.apiUrl=apiUrl;
+        this.currencies=[];
+    }
+    async getCurrencies() {
+        const response= await fetch(`${this.apiUrl}/currencies`);
+        const data= await response.json();
+        for(const [key, value] of Object.entries(data)){
+            // console.log(key,":",value)
+            const currency= new Currency(key,value);
+            this.currencies.push(currency);
+          }
+    }
+    async convertCurrency(amount, fromCurrency, toCurrency) {
+        // console.log(amount, fromCurrency, toCurrency)   //2,Currency {code: 'EUR', name: 'Euro'}, {..}
+        try {
+            if(fromCurrency.code != toCurrency.code){
+                const response= await fetch(`${this.apiUrl}/latest`)
+                const data= await response.json();
+                // console.log(data)
+                const valorMonedas=data["rates"];//todas las conversiones (cantidad=1) {key:value, key:value, ......}
+                if (toCurrency.code in valorMonedas){
+                    let valor= valorMonedas[toCurrency.code];
+                    amount=amount*valor;
+                    console.log(amount)
+                }
+                return amount;
+            }
+            return amount
+        } catch (error) {
+            return null;
+        }
+    };
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
