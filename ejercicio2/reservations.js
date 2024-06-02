@@ -1,6 +1,41 @@
-class Customer {}
+class Customer {
+    info;
+    constructor(id,nombre,email){
+        this.id=id ?? null;
+        this.nombre=nombre ;
+        this.email=email;
+        this.info=`${this.nombre}, Correo Electronico: ${this.email}`
+    }
+    get info(){  
+        return this.info
+    }
+}
 
-class Reservation {}
+class Reservation {
+    info="";
+    constructor(id, customer, date, guests){
+        this.id=id;
+        this.customer=customer;
+        this.date=new Date(date);
+        this.guests=guests;
+        this.info+=`Fecha: ${this.date.getFullYear()}/${this.date.getMonth()}/${this.date.getDay()}, hrs: ${this.date.getHours()}:${this.date.getMinutes()}:${this.date.getSeconds()}, Cliente: ${this.customer.info}, Cantidad de comensales: ${this.guests}`
+    }
+    get info(){
+        return this.info;
+    }
+    static validateReservation(reservaDate, reservaGuests){
+        reservaDate=new Date(reservaDate)
+        const fechaActual= new Date();
+        // console.log(typeof reservaDate ===  "object")
+        if(reservaDate.getFullYear()<fechaActual.getFullYear() && reservaDate.getMonth() < fechaActual.getMonth() && reservaDate.getDay() < fechaActual.getDay()){
+            if(reservaGuests<=0){
+                return false;
+            }
+        }
+        return true;
+        
+    }
+}
 
 class Restaurant {
     constructor(name) {
@@ -63,7 +98,7 @@ document
                 reservationDate,
                 guests
             );
-
+            // console.log(reservation+" A--A" + customer)
             restaurant.addReservation(reservation);
             restaurant.render();
         } else {
