@@ -1,12 +1,4 @@
 class Sensor {
-
-    /*"id": "sensor-1",
-  "name": "Sensor 1",
-  "type": "temperature",
-  "value": 24.5,
-  "unit": "°C",
-  "updated_at": "2023-06-01T12:00:00"
-   */
     constructor(id,name,type,value,unit,updated_at){
         this.id=id ?? null;
         this.name=name ?? "";
@@ -16,14 +8,16 @@ class Sensor {
         this.updated_at=updated_at;
     }
     controlType(type){
-        if(type != "temperature" || type != "humidity"|| type != "pressure"){
-            return "temperature" ;
+        if(type != "temperature" && type != "humidity" && type != "pressure"){
+            return "pressure" ;
         }
+        return type;
     }
-    // Implementar la propiedad computada `updateValue` mediante un *setter* que permita actualizar el valor del sensor y la fecha de actualización.
-    updateValue(valueSensor, fechaUpdate){
+    set value(valueSensor){
         this.value=valueSensor;
-        this.fechaUpdate=fechaUpdate;
+    }
+    set updated_at(fecha){
+        this.updated_at=fecha;
     }
 }
 
@@ -38,22 +32,24 @@ class SensorManager {
 
     updateSensor(id) {
         const sensor = this.sensors.find((sensor) => sensor.id === id);
+        // console.log(this.sensors)
         if (sensor) {
             let newValue;
             switch (sensor.type) {
-                case "temperatura": // Rango de -30 a 50 grados Celsius
+                case "temperature": // Rango de -30 a 50 grados Celsius
                     newValue = (Math.random() * 80 - 30).toFixed(2);
                     break;
-                case "humedad": // Rango de 0 a 100%
+                case "humidity": // Rango de 0 a 100%
                     newValue = (Math.random() * 100).toFixed(2);
                     break;
-                case "presion": // Rango de 960 a 1040 hPa (hectopascales o milibares)
+                case "pressure": // Rango de 960 a 1040 hPa (hectopascales o milibares)
                     newValue = (Math.random() * 80 + 960).toFixed(2);
                     break;
                 default: // Valor por defecto si el tipo es desconocido
                     newValue = (Math.random() * 100).toFixed(2);
             }
-            sensor.updateValue = newValue;
+            sensor.value=newValue;
+            sensor.updated_at=new Date()
             this.render();
         } else {
             console.error(`Sensor ID ${id} no encontrado`);
@@ -62,15 +58,16 @@ class SensorManager {
     
     async loadSensors(url) {
         try {
-            const response= await fetch(`${url}`);
+            const response= await fetch(url);
             const sensores= await response.json();
-            this.sensors=sensores;
+            sensores.forEach(element => {
+                this.addSensor(element)
+            });
             // console.log("?? ",this.sensors)
-            this.render();
         }catch {
             console.error("Error de ruta");
-        } finally {
-            console.log("Petición completada");
+        }finally {
+            this.render();
         }
         
     }
