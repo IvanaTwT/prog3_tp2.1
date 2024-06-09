@@ -31,6 +31,20 @@ class Card {
         const cardElement = this.element.querySelector(".card");
         cardElement.classList.remove("flipped");
     }
+    // Definir el método `toggleFlip()` que cambia el estado de volteo de la carta en función de su estado actual.
+    toggleFlip(){
+       if(this.isFlipped){
+        this.#unflip()
+        this.isFlipped=false;
+       }else{
+        this.#flip()
+        this.isFlipped=true;
+       }
+    //    console.log("Cambiando estado de volteo ",this.isFlipped)
+    };
+    matches(otherCard){
+        return this.name===otherCard.name;
+    }
 }
 
 class Board {
@@ -74,6 +88,35 @@ class Board {
             this.onCardClick(card);
         }
     }
+    shuffleCards(){
+        let max=11;
+        let min=0;
+        const newCards=[]
+        let conjunto=new Set()
+        let numero=0;
+        //guardamos un numero aleatorio al un array tipo set, hasta tener un tamaño 12
+        while(conjunto.size<12){
+            numero=Math.floor(Math.random() * (max - min + 1) + min);
+            conjunto.add(numero)
+        }
+        // console.log(conjunto)
+        conjunto.forEach(numero => {
+            newCards.push(this.cards[numero])  
+        });
+        this.cards=newCards;
+        this.render()
+        // console.log("Mezclando cartas....",this.cards)
+    }
+    reset(){
+        this.flipDownAllCards()
+        this.shuffleCards();
+        this.render();
+    }
+    flipDownAllCards(){
+        this.cards.forEach(carta => {
+            carta.toggleFlip()
+        });
+    };
 }
 
 class MemoryGame {
@@ -95,12 +138,32 @@ class MemoryGame {
     #handleCardClick(card) {
         if (this.flippedCards.length < 2 && !card.isFlipped) {
             card.toggleFlip();
-            this.flippedCards.push(card);
+            this.flippedCards.push(card);//[Card, Card]
 
             if (this.flippedCards.length === 2) {
                 setTimeout(() => this.checkForMatch(), this.flipDuration);
             }
         }
+    }
+    checkForMatch(){
+        if (this.flippedCards.length === 2) {
+            if (this.flippedCards[0].matches(this.flippedCards[1])) {
+                this.matchedCards.push(this.flippedCards);
+                this.flippedCards = [];
+            } else {
+                setTimeout(() => {
+                    this.flippedCards.forEach(card => card.toggleFlip());
+                    this.flippedCards = [];
+                }, this.flipDuration);
+            }
+        }
+    }
+    // - Implementar el método `resetGame()` que reinicia el juego. 
+    // Debe emplear otros métodos de la clase `MemoryGame` para realizar esta tarea.
+    resetGame(){
+        this.flippedCards = [];
+        this.matchedCards = [];
+        this.board.reset()
     }
 }
 
